@@ -24,6 +24,9 @@ export default function Events() {
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {events.map((e) => <EventCard key={e._id} event={e} />)}
       </div>
+      {!loading && events.length === 0 && (
+        <p className="mt-8 text-center text-gray-500">No events available.</p>
+      )}
     </div>
   );
 }

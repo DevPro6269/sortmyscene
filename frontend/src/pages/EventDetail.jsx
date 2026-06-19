@@ -36,11 +36,11 @@ export default function EventDetail() {
     try {
       const res = await client.post("/reserve", { eventId: id, seatNumbers: selected });
       setReservation({ token: res.data.token, expiresAt: res.data.expiresAt });
-      await loadEvent();
+      await loadEvent().catch(() => {});
     } catch (err) {
       setError(err.response?.data?.error || "Could not reserve seats");
       setSelected([]);
-      await loadEvent();
+      await loadEvent().catch(() => {});
     } finally {
       setBusy(false);
     }
@@ -53,25 +53,31 @@ export default function EventDetail() {
       setSuccess(`Booked seats: ${selected.join(", ")}`);
       setReservation(null);
       setSelected([]);
-      await loadEvent();
+      await loadEvent().catch(() => {});
     } catch (err) {
       setError(err.response?.data?.error || "Booking failed");
       setReservation(null);
       setSelected([]);
-      await loadEvent();
+      await loadEvent().catch(() => {});
     } finally {
       setBusy(false);
     }
   }
 
-  function onExpire() {
+  const onExpire = useCallback(() => {
     setReservation(null);
     setSelected([]);
     setError("Your reservation expired. Please select seats again.");
-    loadEvent();
-  }
+    loadEvent().catch(() => {});
+  }, [loadEvent]);
 
-  if (!event) return <p>Loading...</p>;
+  if (!event) {
+    return error ? (
+      <Banner type="error" onClose={() => setError("")}>{error}</Banner>
+    ) : (
+      <p>Loading...</p>
+    );
+  }
 
   return (
     <div className="space-y-4">
