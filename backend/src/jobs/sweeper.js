@@ -14,10 +14,12 @@ async function sweepExpired() {
   }
   // Safety net: any reserved seat whose reservation token is gone (TTL removed it).
   const liveTokens = (await Reservation.find({}, { token: 1 })).map((r) => r.token);
-  await Seat.updateMany(
-    { status: "reserved", reservationId: { $nin: liveTokens } },
-    { $set: { status: "available", reservationId: null } }
-  );
+  if (liveTokens.length > 0) {
+    await Seat.updateMany(
+      { status: "reserved", reservationId: { $nin: liveTokens } },
+      { $set: { status: "available", reservationId: null } }
+    );
+  }
 }
 
 function startSweeper(intervalMs = 60 * 1000) {

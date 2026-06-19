@@ -16,9 +16,14 @@ async function register(req, res) {
   const existing = await User.findOne({ email: email.toLowerCase() });
   if (existing) return res.status(409).json({ error: "Email already registered" });
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ email, passwordHash });
-  return res.status(201).json({ token: signToken(user), user: { id: user._id, email: user.email } });
+  try {
+    const passwordHash = await bcrypt.hash(password, 10);
+    const user = await User.create({ email, passwordHash });
+    return res.status(201).json({ token: signToken(user), user: { id: user._id, email: user.email } });
+  } catch (err) {
+    if (err && err.code === 11000) return res.status(409).json({ error: "Email already registered" });
+    throw err;
+  }
 }
 
 async function login(req, res) {

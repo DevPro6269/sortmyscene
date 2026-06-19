@@ -1,6 +1,8 @@
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 const Seat = require("../models/Seat");
 const Reservation = require("../models/Reservation");
+const Event = require("../models/Event");
 
 const HOLD_MS = 10 * 60 * 1000; // 10 minutes
 
@@ -9,6 +11,12 @@ async function reserve(req, res) {
   if (!eventId || !Array.isArray(seatNumbers) || seatNumbers.length === 0) {
     return res.status(400).json({ error: "eventId and non-empty seatNumbers required" });
   }
+
+  if (!mongoose.isValidObjectId(eventId)) {
+    return res.status(400).json({ error: "Invalid eventId" });
+  }
+  const event = await Event.findById(eventId);
+  if (!event) return res.status(404).json({ error: "Event not found" });
 
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + HOLD_MS);

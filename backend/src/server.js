@@ -1,4 +1,12 @@
 require("dotenv").config();
+
+for (const key of ["MONGO_URI", "JWT_SECRET"]) {
+  if (!process.env[key]) {
+    console.error(`Missing required env var: ${key}`);
+    process.exit(1);
+  }
+}
+
 const { createApp } = require("./app");
 const { connectDB } = require("./config/db");
 const { startSweeper } = require("./jobs/sweeper");

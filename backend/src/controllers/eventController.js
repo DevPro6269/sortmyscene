@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Event = require("../models/Event");
 const Seat = require("../models/Seat");
 
@@ -7,6 +8,9 @@ async function listEvents(req, res) {
 }
 
 async function getEvent(req, res) {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(404).json({ error: "Event not found" });
+  }
   const event = await Event.findById(req.params.id);
   if (!event) return res.status(404).json({ error: "Event not found" });
   const seats = await Seat.find({ eventId: event._id }).sort({ seatNumber: 1 });

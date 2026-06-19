@@ -23,7 +23,7 @@ async function createBooking(req, res) {
 
   await Seat.updateMany(
     { eventId: reservation.eventId, reservationId: token, status: "reserved" },
-    { $set: { status: "booked" } }
+    { $set: { status: "booked", reservationId: null } }
   );
   await Reservation.deleteOne({ token });
 

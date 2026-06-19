@@ -81,4 +81,22 @@ describe("reserve", () => {
     const a1 = await Seat.findOne({ eventId: event._id, seatNumber: "A1" });
     expect(a1.status).toBe("available");
   });
+
+  it("returns 400 for an invalid eventId", async () => {
+    const token = await makeUserToken(`bad_${Date.now()}@b.com`);
+    const res = await request(app)
+      .post("/api/reserve")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ eventId: "not-an-objectid", seatNumbers: ["A1"] });
+    expect(res.status).toBe(400);
+  });
+
+  it("returns 404 when the event does not exist", async () => {
+    const token = await makeUserToken(`ne_${Date.now()}@b.com`);
+    const res = await request(app)
+      .post("/api/reserve")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ eventId: new mongoose.Types.ObjectId().toString(), seatNumbers: ["A1"] });
+    expect(res.status).toBe(404);
+  });
 });
